@@ -182,7 +182,7 @@ public class WatchVideo {
             driver.findElement(By.cssSelector("[class='prism-play-btn playing']"));
             String time = getTime();
             String title = driver.getTitle().replace("-北京市职业技能提升行动管理平台","");
-            System.err.println(StrUtil.fillAfter(username, '　',3)+":正在播放"+StrUtil.fillAfter(title, '　',20)+StrUtil.fillAfter(time, ' ',18));
+            System.err.println(StrUtil.fillAfter(name, '　',3)+":正在播放"+StrUtil.fillAfter(title, '　',20)+StrUtil.fillAfter(time, ' ',18));
             return true;
         } catch (Exception e) {
             return false;
@@ -349,7 +349,7 @@ public class WatchVideo {
         //检查错误
         checkError();
         //检查超时8小时
-        checkTimeOut();
+        //checkTimeOut();
     }
 
     public WatchVideo(String username, String password) {
