@@ -20,7 +20,7 @@
 - 下载代码,使用IDEA等开发工具打开
 
   ```shell
-  $ git clone xxx
+  $ git clone https://github.com/Sowevo/bjjnts.git
   ```
 
 - 准备浏览器驱动
@@ -38,8 +38,8 @@
   ```shell
   # 源视频文件格式可以是 mov,mp4等格式
   # 生成视频后缀必须是y4m和wav,名称必须是你的手机号
-  $ ffmpeg -y -i 源视频.mp4 -pix_fmt yuv420p 185XXXXXX404.y4m
-  $ ffmpeg -y -i 源视频.mp4 -vn -acodec pcm_s16le -ar 48000 -ac 2 185XXXXXX404.y4m
+  $ ffmpeg -y -i 源视频.mp4 -vf scale=960:540 -pix_fmt yuv420p 185XXXXXX404.y4m
+  $ ffmpeg -y -i 源视频.mp4 -vn -acodec pcm_s16le -ar 48000 -ac 2 185XXXXXX404.wav
   ```
 
   将生成的两个文件放到项目中`bjjnts/face`目录中
