@@ -1,9 +1,8 @@
 package com.sowevo.bjjnts;
 
-import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.setting.Setting;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -41,6 +40,66 @@ public class WatchVideo {
     private final String password;
     private String name = "";
     private int lessonIndex = 0;
+    private boolean needSleep = false;
+
+
+
+    public WatchVideo(String username, String password) {
+        ChromeOptions options = new ChromeOptions();
+        // 添加一些chrome启动时的参数
+        options.addArguments("--no-sandbox");
+        options.addArguments(FAKE_DEVICE);
+        options.addArguments(FAKE_UI);
+        options.addArguments(FAKE_VIDEO+username+".y4m");
+        options.addArguments(FAKE_AUDIO+username+".wav");
+
+        Setting setting = new Setting("users.setting");
+        String headless = setting.get("system", "headless");
+        //无头模式
+        if (Boolean.parseBoolean(headless)){
+            options.addArguments("--headless");
+        }
+
+        // 启动Chromes
+        this.driver = new ChromeDriver(options);
+        this.driver.manage().window().setSize(new Dimension(800,480));
+        this.navigation = driver.navigate();
+        this.password = password;
+        this.username = username;
+    }
+
+    public void test() throws InterruptedException {
+        String url = "https://webrtc.github.io/samples/src/content/peerconnection/pc1/";
+        // 启动Chromes
+        this.driver.get(url);
+        this.driver.findElement(By.id("startButton")).click();
+        Thread.sleep(3000);
+        this.driver.findElement(By.id("callButton")).click();
+    }
+
+    public void watch() throws InterruptedException {
+        driver.get(HOME_URL);
+        while (!needSleep) {
+            Thread.sleep(5000);
+            String currentUrl = this.driver.getCurrentUrl();
+            if (currentUrl.contains(LOGIN_URL)) {
+                doLogin();
+            } else if (currentUrl.contains(HOME_URL)) {
+                doHome();
+            } else if (currentUrl.contains(STUDY_URL)) {
+                doStduy();
+            } else if (currentUrl.contains(VIDEO_URL)) {
+                doVideo();
+            } else if (currentUrl.contains("https://www.bjjnts.cn/study/exam")) {
+                System.err.println(name+":跳过单元测式");
+                this.navigation.to(HOME_URL);
+            } else if (currentUrl.contains("https://www.bjjnts.cn/study/courseware")) {
+                System.err.println(name+":跳过单元考试");
+                this.navigation.to(HOME_URL);
+            }
+        }
+    }
+
 
     /**
      * base64转图像
@@ -118,6 +177,7 @@ public class WatchVideo {
             //获取登陆按钮的className，并点击
             WebElement loginBtn = driver.findElement(By.xpath("//button[@type='submit']"));
             loginBtn.click();
+            System.err.println(username+":登录!");
         } catch (Exception ignored) {
         }
     }
@@ -151,25 +211,24 @@ public class WatchVideo {
                 navigation.to(STUDY_URL);
             }
 
-            WebElement name = driver.findElement(By.cssSelector("div[class^='mobile___']"));
-            this.name = name.getAttribute("textContent");
+            WebElement nameStr = driver.findElement(By.cssSelector("div[class^='mobile___']"));
+            this.name = StrUtil.fillAfter(nameStr.getAttribute("textContent"), '　',3);
 
-            List<WebElement> elements = driver.findElements(By.xpath("//a[starts-with(@class,'lesson_list_item___')]"));
+            List<WebElement> elements = driver.findElements(By.cssSelector("a[class^='lesson_list_item___']"));
             if (elements.isEmpty()){
-                System.err.println("你好像没有要学习的课程");
+                System.err.println(name+":你好像没有要学习的课程");
                 navigation.refresh();
             } else {
                 if (lessonIndex > 1){
                     driver.findElement(By.cssSelector("div[class^='open_list___']")).click();
                 }
                 if (elements.size()>lessonIndex){
-                    System.err.println("开始学习!"+elements.get(lessonIndex).getText());
+                    System.err.println(name+":开始学习\t"+elements.get(lessonIndex).getText());
                     elements.get(lessonIndex).click();
                 } else {
                     lessonIndex = 0;
                     elements.get(lessonIndex).click();
                 }
-
             }
         } catch (Exception ignored) {
         }
@@ -185,7 +244,7 @@ public class WatchVideo {
             driver.findElement(By.cssSelector("[class='prism-play-btn playing']"));
             String time = getTime();
             String title = driver.getTitle().replace("-北京市职业技能提升行动管理平台","");
-            System.err.println(StrUtil.fillAfter(name, '　',3)+":正在播放"+StrUtil.fillAfter(title, '　',20)+StrUtil.fillAfter(time, ' ',18));
+            System.err.println(name+":正在播放\t"+StrUtil.fillAfter(title, '　',20)+StrUtil.fillAfter(time, ' ',18));
             return true;
         } catch (Exception e) {
             return false;
@@ -204,7 +263,7 @@ public class WatchVideo {
             if (element.isDisplayed()){
                 element.click();
             }
-            System.err.println("点了一下播放按钮~");
+            System.err.println(name+":点了一下播放按钮~");
             return true;
         } catch (Exception e) {
             return false;
@@ -233,14 +292,16 @@ public class WatchVideo {
         } catch (Exception ignored) {}
     }
 
-    public void checkTimeOut() {
+    /**
+     * 检查需要休息
+     */
+    public void checkNeedSleep() {
         try {
-            WebElement btn8 = driver.findElement(By.cssSelector("button[class='ant-btn ant-btn-primary']"));
-            btn8.click();
-            navigation.to(HOME_URL);
-            long sleep = DateUtil.beginOfDay(DateUtil.tomorrow()).getTime()+ DateUnit.MINUTE.getMillis();
-            System.err.println("睡了,明天见...");
-            Thread.sleep(sleep);
+            WebElement timeOutText = driver.findElement(By.cssSelector("span[class='ant-modal-confirm-title']"));
+            if (timeOutText.getAttribute("textContent").contains("快去休息吧")){
+                needSleep = true;
+                System.err.println(name+":"+timeOutText.getAttribute("textContent"));
+            }
         } catch (Exception ignored) {}
     }
 
@@ -259,7 +320,7 @@ public class WatchVideo {
                     cache.clear();
                 }
                 code = BaiDuOcr.doOcr(src);
-                System.err.println("识别结果为:"+code);
+                System.err.println(name+":识别结果为:"+code);
                 cache.put(src.hashCode(),code);
             }
 
@@ -288,9 +349,9 @@ public class WatchVideo {
     public void switchVideo(){
         try {
             List<WebElement> elements = driver.findElements(By.cssSelector("a[href^='/study/video']"));
-            System.err.println("视频总数:"+elements.size());
+            System.err.println(name+":视频总数:"+elements.size());
             List<WebElement> list = elements.stream().filter(e -> e.findElements(By.cssSelector("span[role='img']")).isEmpty()).collect(Collectors.toList());
-            System.err.println("未学习视频总数:"+list.size());
+            System.err.println(name+":未学习视频总数:"+list.size());
             if (list.isEmpty()){
                 lessonIndex ++;
                 navigation.to(HOME_URL);
@@ -302,8 +363,6 @@ public class WatchVideo {
     }
 
     public boolean checkFinish(){
-        boolean result = false;
-
         //判断是否有此图片（播放条拖拽图片）有则已完成
         boolean playTagExits = checkElementExits(By.cssSelector("#J_prismPlayer"));
         if (playTagExits){
@@ -322,7 +381,7 @@ public class WatchVideo {
         if (repBtnExits){
             return true;
         }
-        return result;
+        return false;
     }
 
     /**
@@ -345,60 +404,12 @@ public class WatchVideo {
             boolean playButton = checkPlayButton();
             boolean stopButton = checkStopButton();
             if (!playButton&&!stopButton){
-                System.err.println("没有播放&暂停按钮!");
-                //navigation.to(HOME_URL);
+                System.err.println(name+":没有播放&暂停按钮!");
             }
         }
-        //检查错误
+        // 检查错误
         checkError();
-        //检查超时8小时
-        //checkTimeOut();
-    }
-
-    public WatchVideo(String username, String password) {
-        ChromeOptions options = new ChromeOptions();
-        // 添加一些chrome启动时的参数
-        options.addArguments("--no-sandbox");
-        options.addArguments(FAKE_DEVICE);
-        options.addArguments(FAKE_UI);
-        options.addArguments(FAKE_VIDEO+username+".y4m");
-        options.addArguments(FAKE_AUDIO+username+".wav");
-        // 启动Chromes
-        this.driver = new ChromeDriver(options);
-        this.driver.manage().window().setSize(new Dimension(800,480));
-        this.navigation = driver.navigate();
-        this.password = password;
-        this.username = username;
-
-    }
-    public void watch() throws InterruptedException {
-        driver.get(HOME_URL);
-        while (true) {
-            Thread.sleep(5000);
-            String currentUrl = this.driver.getCurrentUrl();
-            if (currentUrl.contains(LOGIN_URL)) {
-                doLogin();
-            } else if (currentUrl.contains(HOME_URL)) {
-                doHome();
-            } else if (currentUrl.contains(STUDY_URL)) {
-                doStduy();
-            } else if (currentUrl.contains(VIDEO_URL)) {
-                doVideo();
-            } else if (currentUrl.contains("https://www.bjjnts.cn/study/exam")) {
-                System.err.println("跳过单元测式");
-                this.navigation.to(HOME_URL);
-            } else if (currentUrl.contains("https://www.bjjnts.cn/study/courseware")) {
-                System.err.println("跳过单元考试");
-                this.navigation.to(HOME_URL);
-            }
-        }
-    }
-    public void test() throws InterruptedException {
-        String url = "https://webrtc.github.io/samples/src/content/peerconnection/pc1/";
-        // 启动Chromes
-        this.driver.get(url);
-        this.driver.findElement(By.id("startButton")).click();
-        Thread.sleep(3000);
-        this.driver.findElement(By.id("callButton")).click();
+        // 检查超时8小时需要休息
+        checkNeedSleep();
     }
 }
