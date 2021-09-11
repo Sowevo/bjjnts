@@ -2,7 +2,8 @@
 [system]
 # 百度Ocr的accessToken
 accessToken = 24.6c5e1ff107f0e8bcef8c46d3424a0e78.2592000.1485516651.282335-8574074
-
+# 是否使用无头模式(不显示浏览器界面)
+headless = false
 
 
 
