@@ -159,6 +159,9 @@ public class WatchVideo {
                 System.err.println("你好像没有要学习的课程");
                 navigation.refresh();
             } else {
+                if (lessonIndex > 1){
+                    driver.findElement(By.cssSelector("div[class^='open_list___']")).click();
+                }
                 if (elements.size()>lessonIndex){
                     System.err.println("开始学习!"+elements.get(lessonIndex).getText());
                     elements.get(lessonIndex).click();
