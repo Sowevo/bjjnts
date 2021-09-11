@@ -21,7 +21,7 @@ public class Main {
         if (osInfo.isWindows()){
             System.setProperty("webdriver.chrome.driver", "driver/chromedriver_win");
         } else if(osInfo.isLinux()){
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux64");
+            System.setProperty("webdriver.chrome.driver", "driver/chromedriver_linux64");
         } else if (osInfo.isMac()){
             System.setProperty("webdriver.chrome.driver", "driver/chromedriver_mac64");
         } else {
