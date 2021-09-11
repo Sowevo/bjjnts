@@ -1,16 +1,15 @@
 package com.sowevo.bjjnts;
 
+import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.setting.Setting;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import sun.misc.BASE64Decoder;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +97,7 @@ public class WatchVideo {
                 this.navigation.to(HOME_URL);
             }
         }
+        driver.close();
     }
 
 
@@ -108,28 +108,13 @@ public class WatchVideo {
      * @param imgFile img文件
      * @return boolean
      */
-    public boolean base64ToImage(String imgStr, File imgFile) { // 对字节数组字符串进行Base64解码并生成图片
-        if (StrUtil.isEmpty(imgStr)) {
-            return false;
-        }
+    public void base64ToImage(String imgStr, File imgFile) { // 对字节数组字符串进行Base64解码并生成图片
         imgStr = imgStr.replace("data:image/png;base64,","");
-        BASE64Decoder decoder = new BASE64Decoder();
-        try {
-            // Base64解码
-            byte[] b = decoder.decodeBuffer(imgStr);
-            for (int i = 0; i < b.length; ++i) {
-                if (b[i] < 0) {
-                    b[i] += 256;
-                }
-            }
-            OutputStream out = new FileOutputStream(imgFile);
-            out.write(b);
-            out.flush();
-            out.close();
-            return true;
-        } catch (Exception e) {
-            return false;
+        if (StrUtil.isEmpty(imgStr)) {
+            return;
         }
+        BufferedImage image = ImgUtil.toImage(imgStr);
+        ImgUtil.write(image,imgFile);
     }
 
     public String getTime(){
@@ -214,7 +199,7 @@ public class WatchVideo {
             WebElement nameStr = driver.findElement(By.cssSelector("div[class^='mobile___']"));
             this.name = StrUtil.fillAfter(nameStr.getAttribute("textContent"), '　',3);
 
-            List<WebElement> elements = driver.findElements(By.cssSelector("a[class^='lesson_list_item___']"));
+            List<WebElement> elements = driver.findElements(By.cssSelector("a[class^='lesson_list_item___']>h2"));
             if (elements.isEmpty()){
                 System.err.println(name+":你好像没有要学习的课程");
                 navigation.refresh();
@@ -354,6 +339,7 @@ public class WatchVideo {
             System.err.println(name+":未学习视频总数:"+list.size());
             if (list.isEmpty()){
                 lessonIndex ++;
+                System.err.println(name+":当前章节已经学习完毕,换下一章!");
                 navigation.to(HOME_URL);
             } else {
                 String href = list.get(0).getAttribute("href");
