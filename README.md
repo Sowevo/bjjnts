@@ -44,6 +44,8 @@
 
   将生成的两个文件放到项目中`bjjnts/face`目录中
 
+  测试网站:https://webcamtests.com/    如出现人脸识别,请检测是否正确识别web camera
+
 - 申请百度Ocr的api,每个月可以免费试用1000次
 
   1. [领取](https://console.bce.baidu.com/ai/#/ai/ocr/overview/resource/getFree)免费接口额度(不同的用户免费次数不一样)

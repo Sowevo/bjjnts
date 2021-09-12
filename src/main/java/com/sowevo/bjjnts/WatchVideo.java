@@ -24,10 +24,14 @@ import java.util.stream.Collectors;
  * @email i@sowevo.com
  */
 public class WatchVideo {
+    private static final String FULL_PATH = System.getProperty("user.dir");
+    private static final String SEPARATOR = File.separator;
+
     public static final String FAKE_DEVICE = "--use-fake-device-for-media-stream";
     public static final String FAKE_UI = "--use-fake-ui-for-media-stream";
-    public static final String FAKE_VIDEO = "--use-file-for-fake-video-capture=face/";
-    public static final String FAKE_AUDIO = "--use-file-for-fake-audio-capture=face/";
+    public static final String FAKE_VIDEO = "--use-file-for-fake-video-capture="+FULL_PATH+SEPARATOR+"face"+SEPARATOR;
+    public static final String FAKE_AUDIO = "--use-file-for-fake-audio-capture="+FULL_PATH+SEPARATOR+"face"+SEPARATOR;
+
     public static final String HOME_URL = "https://www.bjjnts.cn/home";
     public static final String LOGIN_URL = "https://www.bjjnts.cn/user/login";
     public static final String STUDY_URL = "https://www.bjjnts.cn/mine/student/study";
