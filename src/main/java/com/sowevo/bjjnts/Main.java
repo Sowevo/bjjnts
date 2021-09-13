@@ -46,7 +46,7 @@ public class Main implements CommandLineRunner {
                     e.printStackTrace();
                 }
             },username).start();
-            log.info("{}线程启动",username);
+            log.info("{}:线程启动",username);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {}
@@ -64,7 +64,7 @@ public class Main implements CommandLineRunner {
         if (osInfo.isWindows()){
             driverName = "driver/chromedriver_win";
         } else if(osInfo.isLinux()){
-            driverName = "driver/driver/chromedriver_linux64";
+            driverName = "driver/chromedriver_linux64";
         } else if (osInfo.isMac()){
             driverName="driver/chromedriver_mac64";
         } else {
