@@ -1,0 +1,23 @@
+config:
+  # 百度Ocr的accessToken
+  accessToken: 24.6078e5acdfe474012738497d0ef89bb.2839462.1633779779.283940-24826470
+  # 是否使用无头模式(不显示浏览器界面)
+  headless: false
+  userList:
+    - username: 用户名1
+      password: 密码1
+
+    - username: 用户名2
+      password: 密码2
+
+    - username: 用户名3
+      password: 密码3
+
+    - username: 用户名4
+      password: 密码4
+
+
+
+logging:
+  level:
+    root: info

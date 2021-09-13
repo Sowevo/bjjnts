@@ -1,15 +1,21 @@
 package com.sowevo.bjjnts;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.setting.Setting;
+import com.sowevo.bjjnts.utils.BaiDuOcr;
+import com.sowevo.bjjnts.config.Config;
+import com.sowevo.bjjnts.utils.FormulaCalculator;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +29,10 @@ import java.util.stream.Collectors;
  * @date 2021/9/10 10:31 上午
  * @email i@sowevo.com
  */
+@Slf4j
 public class WatchVideo {
+    private Config config;
+
     private static final String FULL_PATH = System.getProperty("user.dir");
     private static final String SEPARATOR = File.separator;
 
@@ -44,10 +53,11 @@ public class WatchVideo {
     private String name = "";
     private int lessonIndex = 0;
     private boolean needSleep = false;
+    private DateTime sleepTime;
 
 
 
-    public WatchVideo(String username, String password) {
+    public WatchVideo(String username, String password,Config config) {
         ChromeOptions options = new ChromeOptions();
         // 添加一些chrome启动时的参数
         options.addArguments("--no-sandbox");
@@ -56,10 +66,9 @@ public class WatchVideo {
         options.addArguments(FAKE_VIDEO+username+".y4m");
         options.addArguments(FAKE_AUDIO+username+".wav");
 
-        Setting setting = new Setting("users.setting");
-        String headless = setting.get("system", "headless");
+        boolean headless = config.isHeadless();
         //无头模式
-        if (Boolean.parseBoolean(headless)){
+        if (headless){
             options.addArguments("--headless");
         }
 
@@ -69,6 +78,7 @@ public class WatchVideo {
         this.navigation = driver.navigate();
         this.password = password;
         this.username = username;
+        this.config = config;
     }
 
     public void test() throws InterruptedException {
@@ -82,26 +92,35 @@ public class WatchVideo {
 
     public void watch() throws InterruptedException {
         driver.get(HOME_URL);
-        while (!needSleep) {
-            Thread.sleep(5000);
-            String currentUrl = this.driver.getCurrentUrl();
-            if (currentUrl.contains(LOGIN_URL)) {
-                doLogin();
-            } else if (currentUrl.contains(HOME_URL)) {
-                doHome();
-            } else if (currentUrl.contains(STUDY_URL)) {
-                doStduy();
-            } else if (currentUrl.contains(VIDEO_URL)) {
-                doVideo();
-            } else if (currentUrl.contains("https://www.bjjnts.cn/study/exam")) {
-                System.err.println(name+":跳过单元测式");
-                this.navigation.to(HOME_URL);
-            } else if (currentUrl.contains("https://www.bjjnts.cn/study/courseware")) {
-                System.err.println(name+":跳过单元考试");
-                this.navigation.to(HOME_URL);
+        while (true) {
+            if (needSleep&&sleepTime!=null){
+                if (DateUtil.compare(new Date(),sleepTime.toJdkDate())<=0){
+                    log.info("{}:今天已经学够8小时了",name);
+                    Thread.sleep(1000*60*10);
+                } else {
+                    sleepTime = null;
+                    needSleep = false;
+                }
+            } else {
+                Thread.sleep(5000);
+                String currentUrl = this.driver.getCurrentUrl();
+                if (currentUrl.contains(LOGIN_URL)) {
+                    doLogin();
+                } else if (currentUrl.contains(HOME_URL)) {
+                    doHome();
+                } else if (currentUrl.contains(STUDY_URL)) {
+                    doStduy();
+                } else if (currentUrl.contains(VIDEO_URL)) {
+                    doVideo();
+                } else if (currentUrl.contains("https://www.bjjnts.cn/study/exam")) {
+                    log.info("{}:跳过单元测式",name);
+                    this.navigation.to(HOME_URL);
+                } else if (currentUrl.contains("https://www.bjjnts.cn/study/courseware")) {
+                    log.info("{}:跳过单元考试",name);
+                    this.navigation.to(HOME_URL);
+                }
             }
         }
-        driver.close();
     }
 
 
@@ -166,7 +185,7 @@ public class WatchVideo {
             //获取登陆按钮的className，并点击
             WebElement loginBtn = driver.findElement(By.xpath("//button[@type='submit']"));
             loginBtn.click();
-            System.err.println(username+":登录!");
+            log.info("{}:登录!",username);
         } catch (Exception ignored) {
         }
     }
@@ -205,14 +224,14 @@ public class WatchVideo {
 
             List<WebElement> elements = driver.findElements(By.cssSelector("a[class^='lesson_list_item___']>h2"));
             if (elements.isEmpty()){
-                System.err.println(name+":你好像没有要学习的课程");
+                log.info("{}:你好像没有要学习的课程",name);
                 navigation.refresh();
             } else {
                 if (lessonIndex > 1){
                     driver.findElement(By.cssSelector("div[class^='open_list___']")).click();
                 }
                 if (elements.size()>lessonIndex){
-                    System.err.println(name+":开始学习\t"+elements.get(lessonIndex).getText());
+                    log.info("{}:开始学习\t{}",name,elements.get(lessonIndex).getText());
                     elements.get(lessonIndex).click();
                 } else {
                     lessonIndex = 0;
@@ -233,7 +252,7 @@ public class WatchVideo {
             driver.findElement(By.cssSelector("[class='prism-play-btn playing']"));
             String time = getTime();
             String title = driver.getTitle().replace("-北京市职业技能提升行动管理平台","");
-            System.err.println(name+":正在播放\t"+StrUtil.fillAfter(title, '　',20)+StrUtil.fillAfter(time, ' ',18));
+            log.info("{}:正在播放\t{}",name,StrUtil.fillAfter(title, '　',20)+StrUtil.fillAfter(time, ' ',18));
             return true;
         } catch (Exception e) {
             return false;
@@ -252,7 +271,7 @@ public class WatchVideo {
             if (element.isDisplayed()){
                 element.click();
             }
-            System.err.println(name+":点了一下播放按钮~");
+            log.info("{}:点了一下播放按钮~",name);
             return true;
         } catch (Exception e) {
             return false;
@@ -289,7 +308,8 @@ public class WatchVideo {
             WebElement timeOutText = driver.findElement(By.cssSelector("span[class='ant-modal-confirm-title']"));
             if (timeOutText.getAttribute("textContent").contains("快去休息吧")){
                 needSleep = true;
-                System.err.println(name+":"+timeOutText.getAttribute("textContent"));
+                sleepTime = DateUtil.beginOfDay(DateUtil.tomorrow());
+                log.info("{}:{}",name,timeOutText.getAttribute("textContent"));
             }
         } catch (Exception ignored) {}
     }
@@ -309,7 +329,7 @@ public class WatchVideo {
                     cache.clear();
                 }
                 code = BaiDuOcr.doOcr(src);
-                System.err.println(name+":识别结果为:"+code);
+                log.info("{}:识别结果为:{}",name,code);
                 cache.put(src.hashCode(),code);
             }
 
@@ -338,12 +358,12 @@ public class WatchVideo {
     public void switchVideo(){
         try {
             List<WebElement> elements = driver.findElements(By.cssSelector("a[href^='/study/video']"));
-            System.err.println(name+":视频总数:"+elements.size());
+            log.info("{}:视频总数:{}",name,elements.size());
             List<WebElement> list = elements.stream().filter(e -> e.findElements(By.cssSelector("span[role='img']")).isEmpty()).collect(Collectors.toList());
-            System.err.println(name+":未学习视频总数:"+list.size());
+            log.info("{}:未学习视频总数:{}",name,list.size());
             if (list.isEmpty()){
                 lessonIndex ++;
-                System.err.println(name+":当前章节已经学习完毕,换下一章!");
+                log.info("{}:当前章节已经学习完毕,换下一章!",name);
                 navigation.to(HOME_URL);
             } else {
                 String href = list.get(0).getAttribute("href");
@@ -394,7 +414,7 @@ public class WatchVideo {
             boolean playButton = checkPlayButton();
             boolean stopButton = checkStopButton();
             if (!playButton&&!stopButton){
-                System.err.println(name+":没有播放&暂停按钮!");
+                log.info("{}:没有播放&暂停按钮!",name);
             }
         }
         // 检查错误

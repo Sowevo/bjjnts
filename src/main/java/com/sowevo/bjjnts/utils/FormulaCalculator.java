@@ -1,4 +1,4 @@
-package com.sowevo.bjjnts;
+package com.sowevo.bjjnts.utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

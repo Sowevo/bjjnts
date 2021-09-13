@@ -1,10 +1,11 @@
-package com.sowevo.bjjnts;
+package com.sowevo.bjjnts.utils;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.setting.Setting;
+import com.sowevo.bjjnts.config.Config;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,13 +18,16 @@ import java.util.Map;
  * @date 2021/9/11 5:12 上午
  * @email i@sowevo.com
  */
+@Component
 public class BaiDuOcr {
     private static String accessToken;
     public static final String OCR_URL = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
-    static {
-        Setting setting = new Setting("users.setting");
-        accessToken = setting.get("system", "accessToken");
+
+
+    public BaiDuOcr(Config config) {
+        BaiDuOcr.accessToken = config.getAccessToken();
     }
+
     /**
      * 使用百度光学字符识别代码
      *
