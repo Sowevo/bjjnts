@@ -57,7 +57,7 @@ public class WatchVideo {
 
 
 
-    public WatchVideo(String username, String password,Config config) {
+    public WatchVideo(String username, String password,Config config,int index) {
         ChromeOptions options = new ChromeOptions();
         // 添加一些chrome启动时的参数
         options.addArguments("--no-sandbox");
@@ -74,7 +74,10 @@ public class WatchVideo {
 
         // 启动Chromes
         this.driver = new ChromeDriver(options);
-        this.driver.manage().window().setSize(new Dimension(800,480));
+        if (!headless){
+            this.driver.manage().window().setSize(new Dimension(800,480));
+            this.driver.manage().window().setPosition(new Point(index*100,index*100));
+        }
         this.navigation = driver.navigate();
         this.password = password;
         this.username = username;
@@ -86,7 +89,8 @@ public class WatchVideo {
         // 启动Chromes
         this.driver.get(url);
         this.driver.findElement(By.id("startButton")).click();
-        Thread.sleep(3000);
+        setTitle(username);
+        Thread.sleep(6000);
         this.driver.findElement(By.id("callButton")).click();
     }
 
@@ -96,6 +100,7 @@ public class WatchVideo {
             if (needSleep&&sleepTime!=null){
                 if (DateUtil.compare(new Date(),sleepTime.toJdkDate())<=0){
                     log.info("{}:今天已经学够8小时了",name);
+                    setTitle(":今天已经学够8小时了");
                     Thread.sleep(1000*60*10);
                 } else {
                     sleepTime = null;
@@ -176,11 +181,11 @@ public class WatchVideo {
         try {
             //获取输入框的id,并在输入框中输入用户名
             WebElement loginInput = driver.findElement(By.id("login-hooks_username"));
-            loginInput.sendKeys(username);
+            loginInput.sendKeys(Keys.HOME,Keys.chord(Keys.SHIFT,Keys.END),username);
 
             //获取输入框的id，并在输入框中输入密码
             WebElement pwdInput = driver.findElement(By.id("login-hooks_password"));
-            pwdInput.sendKeys(password);
+            pwdInput.sendKeys(Keys.HOME,Keys.chord(Keys.SHIFT,Keys.END),password);
 
             //获取登陆按钮的className，并点击
             WebElement loginBtn = driver.findElement(By.xpath("//button[@type='submit']"));
@@ -251,8 +256,9 @@ public class WatchVideo {
         try {
             driver.findElement(By.cssSelector("[class='prism-play-btn playing']"));
             String time = getTime();
-            String title = driver.getTitle().replace("-北京市职业技能提升行动管理平台","");
-            log.info("{}:正在播放\t{}",name,StrUtil.fillAfter(title, '　',20)+StrUtil.fillAfter(time, ' ',18));
+            WebElement title = driver.findElement(By.cssSelector("div[class^='header_box_title___']"));
+            log.info("{}:正在播放\t{}",name,StrUtil.fillAfter(title.getAttribute("textContent"), '　',20)+StrUtil.fillAfter(time, ' ',18));
+            setTitle(":"+StrUtil.fillAfter(time, ' ',18));
             return true;
         } catch (Exception e) {
             return false;
@@ -309,6 +315,7 @@ public class WatchVideo {
             if (timeOutText.getAttribute("textContent").contains("快去休息吧")){
                 needSleep = true;
                 sleepTime = DateUtil.beginOfDay(DateUtil.tomorrow());
+                setTitle(":今天已经学够8小时了");
                 log.info("{}:{}",name,timeOutText.getAttribute("textContent"));
             }
         } catch (Exception ignored) {}
@@ -343,7 +350,6 @@ public class WatchVideo {
             }
 
             WebElement codeInput = driver.findElement(By.xpath("//*[@id='basic_code']"));
-            codeInput.sendKeys(code);
             codeInput.sendKeys(Keys.HOME,Keys.chord(Keys.SHIFT,Keys.END),code);
             WebElement codeBtn = driver.findElement(By.cssSelector("button[class='ant-btn ant-btn-primary']"));
             codeBtn.click();
@@ -421,5 +427,11 @@ public class WatchVideo {
         checkError();
         // 检查超时8小时需要休息
         checkNeedSleep();
+    }
+
+    private void setTitle(String title){
+        title = name + title;
+        JavascriptExecutor js = (JavascriptExecutor)driver;
+        js.executeScript("document.title = '"+title+"'");
     }
 }

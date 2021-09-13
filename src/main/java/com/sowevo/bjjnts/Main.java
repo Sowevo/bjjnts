@@ -35,11 +35,13 @@ public class Main implements CommandLineRunner {
         getOsInfo();
 
         List<User> userlist = config.getUserlist();
-        userlist.forEach(user->{
+        for (int i = 0; i < userlist.size(); i++) {
+            User user = userlist.get(i);
             String username = user.getUsername();
             String password = user.getPassword();
+            int index = i;
             new Thread(() -> {
-                WatchVideo watchVideo = new WatchVideo(username,password,config);
+                WatchVideo watchVideo = new WatchVideo(username,password,config, index);
                 try {
                     watchVideo.watch();
                 } catch (InterruptedException e) {
@@ -50,7 +52,7 @@ public class Main implements CommandLineRunner {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {}
-        });
+        }
     }
 
     /**
