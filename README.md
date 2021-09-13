@@ -60,11 +60,11 @@
      $ curl -i -k 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=【应用的API Key】&client_secret=【应用的Secret Key】'
      ```
 
-  4. 把你的access_token填到`bjjnts/src/main/resources/users.setting`这个配置文件里.
+  4. 把你的access_token填到`bjjnts/src/main/resources/application.yml`这个配置文件里.
 
 - 填写你的用户信息到配置文件
 
-  1. 打开`bjjnts/src/main/resources/users.setting`按照模板进行修改
+  1. 打开`bjjnts/src/main/resources/application.yml`按照模板进行修改
   2. 需要修改默认密码,否则会报错
   3. 可以同时填多个用户信息,同时运行
 
