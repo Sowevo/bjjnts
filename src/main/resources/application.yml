@@ -21,3 +21,8 @@ config:
 logging:
   level:
     root: info
+  file:
+    path: logs
+  logback:
+    rollingpolicy:
+      max-file-size: 1MB
