@@ -114,8 +114,6 @@ public class WatchVideo {
                     needSleep = false;
                 }
             } else if (lessonLoop>3){
-                this.navigation.to(STUDY_URL);
-                Thread.sleep(1000*60);
                 log.info("{}:所有课程都学完了",name);
                 setTitle(":所有课程都学完了");
                 break;
@@ -255,7 +253,6 @@ public class WatchVideo {
                     log.info("{}:课程索引越界,尝试重新开始,当前循环次数{}",name,lessonLoop);
                     lessonIndex = 0;
                     lessonLoop ++;
-                    elements.get(lessonIndex).click();
                 }
             }
         } catch (Exception ignored) {
