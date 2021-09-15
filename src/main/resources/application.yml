@@ -1,6 +1,12 @@
 config:
+  # 可选tr或者百度,根据配置修改下面两个参数
+  ocrType: tr
   # 百度Ocr的accessToken
   accessToken: 24.6078e5acdfe474012738497d0ef89bb.2839462.1633779779.283940-24826470
+  # Tr OCR 的访问地址
+  trWebOCRUrl: http://192.168.21.185:8089/api/tr-run/
+
+
   # 是否使用无头模式(不显示浏览器界面)
   headless: false
   userList:

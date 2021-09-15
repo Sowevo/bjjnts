@@ -13,12 +13,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.List;
 
 /**
- * @author dongjunqi
+ * 
  * @version 1.0
  * @className
  * @description 启动类
  * @date 2021/9/13 12:39 下午
- * @email dongjq@nancal.com
  */
 @SpringBootApplication
 @Slf4j

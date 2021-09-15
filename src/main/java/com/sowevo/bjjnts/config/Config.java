@@ -7,12 +7,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * @author dongjunqi
+ *
  * @version 1.0
  * @className config
- * @description TODO
+ * @description 配置类
  * @date 2021/9/13 12:57 下午
- * @email dongjq@nancal.com
  */
 @Data
 @Component
@@ -29,7 +28,13 @@ public class Config {
     private boolean headless;
 
     /**
-     * 访问令牌
+     * 百度的访问令牌
      */
     private String accessToken;
+    /**
+     * TrWebOCR的访问Url
+     **/
+    private String trWebOCRUrl;
+
+    private String ocrType;
 }

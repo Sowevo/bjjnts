@@ -5,9 +5,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import com.sowevo.bjjnts.utils.BaiDuOcr;
 import com.sowevo.bjjnts.config.Config;
 import com.sowevo.bjjnts.utils.FormulaCalculator;
+import com.sowevo.bjjnts.utils.OCRUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @author dongjunqi
+ * 
  * @version 1.0
  * @className WatchVideo
  * @description 看视频
@@ -335,7 +335,7 @@ public class WatchVideo {
                 if (cache.size()>100){
                     cache.clear();
                 }
-                code = BaiDuOcr.doOcr(src);
+                code = OCRUtils.doOcr(src);
                 log.info("{}:识别结果为:{}",name,code);
                 cache.put(src.hashCode(),code);
             }
