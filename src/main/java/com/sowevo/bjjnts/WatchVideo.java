@@ -56,7 +56,7 @@ public class WatchVideo {
     /**目前学习的课程序号*/
     private int lessonIndex = 0;
     /**课程循环次数,避免所有课程都学完之后无限循环*/
-    private int lessonLoop = 0;
+    private int lessonLoop = 1;
     /**是不是需要休息*/
     private boolean needSleep = false;
     /**休息结束时间*/
@@ -114,6 +114,8 @@ public class WatchVideo {
                     needSleep = false;
                 }
             } else if (lessonLoop>3){
+                this.navigation.to(STUDY_URL);
+                Thread.sleep(1000*60);
                 log.info("{}:所有课程都学完了",name);
                 setTitle(":所有课程都学完了");
                 break;
@@ -383,7 +385,7 @@ public class WatchVideo {
             if (list.isEmpty()){
                 lessonIndex ++;
                 log.info("{}:当前章节已经学习完毕,换下一章!",name);
-                navigation.to(HOME_URL);
+                navigation.to(STUDY_URL);
             } else {
                 String href = list.get(0).getAttribute("href");
                 navigation.to(href);
