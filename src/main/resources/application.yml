@@ -1,5 +1,5 @@
 config:
-  # 可选tr或者百度,根据配置修改下面两个参数
+  # 可选tr或baidu,根据配置修改下面两个参数
   ocrType: tr
   # 百度Ocr的accessToken
   accessToken: 24.6078e5acdfe474012738497d0ef89bb.2839462.1633779779.283940-24826470

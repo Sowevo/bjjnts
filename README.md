@@ -12,7 +12,7 @@
 ### 功能
 
 - 自动播放,自动换下一集...
-- 自动处理验证码(百度api)
+- 自动处理验证码
 - 自动人脸识别
 
 ### 项目结构
@@ -54,21 +54,48 @@
 
     检测是否正确加载你的视频
 
-- 申请百度Ocr的api,每个月可以免费试用1000次
+- 准备OCR工具
 
-  1. [领取](https://console.bce.baidu.com/ai/#/ai/ocr/overview/resource/getFree)免费接口额度(不同的用户免费次数不一样)
+  - 目前支持两种,需要修改配置文件中`ocrType`来指定
 
-  2. [创建应用](https://console.bce.baidu.com/ai/#/ai/ocr/overview/index)并获取API Key与Secret Key
+  - 百度OCR
 
-  3. 使用命令获取**access_token**,[参考](https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu)
+    - 申请百度Ocr的api,每个月可以免费试用1000次
 
-     ```shell
-     # 从返回值中找到access_token,格式类似
-     # 24.6c5e1ff107f0e8bcef8c46d3424a0e78.2592000.1485516651.282335-8574074
-     $ curl -i -k 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=【应用的API Key】&client_secret=【应用的Secret Key】'
-     ```
+      1. [领取](https://console.bce.baidu.com/ai/#/ai/ocr/overview/resource/getFree)免费接口额度(不同的用户免费次数不一样)
 
-  4. 把你的access_token填到`bjjnts/src/main/resources/application.yml`这个配置文件里.
+      2. [创建应用](https://console.bce.baidu.com/ai/#/ai/ocr/overview/index)并获取API Key与Secret Key
+
+      3. 使用命令获取**access_token**,[参考](https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu)
+
+         ```shell
+         # 从返回值中找到access_token,格式类似
+         # 24.6c5e1ff107f0e8bcef8c46d3424a0e78.2592000.1485516651.282335-8574074
+         $ curl -i -k 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=【应用的API Key】&client_secret=【应用的Secret Key】'
+         ```
+
+      4. 修改配置文件`ocrType: baidu`
+
+      5. 修改配置文件`baiDuAccessToken: 你的access_token`
+
+  - TrWebOCR
+
+    - 依赖Docker环境,使用[TrWebOCR](https://github.com/alisen39/TrWebOCR)
+
+    - 部署TrWebOCR
+
+      ```shell
+      # 从 dockerhub pull
+      $ docker pull mmmz/trwebocr:latest
+      # 运行镜像
+      $ docker run -itd --rm -p 8089:8089 --name trwebocr mmmz/trwebocr:latest 
+      ```
+
+    - 访问http://127.0.0.1:8089验证效果
+
+    - 修改配置文件`ocrType: tr`
+
+    - 修改配置文件`trWebOCRUrl: http://127.0.0.1:8089/api/tr-run/`
 
 - 填写你的用户信息到配置文件
 
@@ -81,3 +108,5 @@
 
 ## 鸣谢
 *   借鉴了[bjjnts](https://greasyfork.org/zh-CN/scripts/430451-bjjnts)项目的部分代码
+*   使用了[TrWebOCR](https://github.com/alisen39/TrWebOCR)进行验证码识别
+

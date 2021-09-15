@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sowevo.bjjnts.config.Config;
 import com.sowevo.bjjnts.utils.FormulaCalculator;
@@ -51,8 +52,14 @@ public class WatchVideo {
     private final String username;
     private final String password;
     private String name = "";
+
+    /**目前学习的课程序号*/
     private int lessonIndex = 0;
+    /**课程循环次数,避免所有课程都学完之后无限循环*/
+    private int lessonLoop = 0;
+    /**是不是需要休息*/
     private boolean needSleep = false;
+    /**休息结束时间*/
     private DateTime sleepTime;
 
 
@@ -106,6 +113,10 @@ public class WatchVideo {
                     sleepTime = null;
                     needSleep = false;
                 }
+            } else if (lessonLoop>3){
+                log.info("{}:所有课程都学完了",name);
+                setTitle(":所有课程都学完了");
+                break;
             } else {
                 Thread.sleep(5000);
                 String currentUrl = this.driver.getCurrentUrl();
@@ -239,7 +250,9 @@ public class WatchVideo {
                     log.info("{}:开始学习\t{}",name,elements.get(lessonIndex).getText());
                     elements.get(lessonIndex).click();
                 } else {
+                    log.info("{}:课程索引越界,尝试重新开始,当前循环次数{}",name,lessonLoop);
                     lessonIndex = 0;
+                    lessonLoop ++;
                     elements.get(lessonIndex).click();
                 }
             }
@@ -336,16 +349,16 @@ public class WatchVideo {
                     cache.clear();
                 }
                 code = OCRUtils.doOcr(src);
-                log.info("{}:识别结果为:{}",name,code);
+                log.info("{}:验证码识别结果为:{}",name,code);
                 cache.put(src.hashCode(),code);
             }
 
             //code处理
             if (!StrUtil.isNumeric(code)){
-                if (code.contains("+")||code.contains("-")||code.contains("x")||code.contains("X")||code.contains("/")||code.contains("*")){
+                if (code.contains("+")||code.contains("-")||code.contains("x")||code.contains("X")||code.contains("*")){
                     code = String.valueOf(FormulaCalculator.getResult(code));
                 } else {
-                    code = "1234";
+                    code = String.valueOf(RandomUtil.randomInt(0,99999));
                 }
             }
 

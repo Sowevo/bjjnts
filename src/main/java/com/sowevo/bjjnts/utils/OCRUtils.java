@@ -45,6 +45,10 @@ public class OCRUtils {
      * @return {@link String}
      */
     public static String doTrOcr(String src) {
+        if (StrUtil.isBlank(TR_OCR_URL)){
+            log.info("木有TrOcrUrl,不能识别验证码,再见!");
+            throw new RuntimeException();
+        }
         src = src.replace("data:image/png;base64,","");
         // 请求url
         Map<String, Object> paramMap = new HashMap<>();
@@ -74,8 +78,8 @@ public class OCRUtils {
      */
     public static String doBaiDuOcr(String src) {
         if (StrUtil.isBlank(BAIDU_ACCESS_TOKEN)){
-            System.err.println("木有accessToken,不能识别验证码,再见!");
-            System.exit(0);
+            log.info("木有accessToken,不能识别验证码,再见!");
+            throw new RuntimeException();
         }
         // 请求url
         Map<String, Object> paramMap = new HashMap<>();
