@@ -79,6 +79,12 @@ public class WatchVideo {
             options.addArguments("--headless");
         }
 
+        boolean muteAudio = config.isMuteAudio();
+        // 静音
+        if (muteAudio){
+          options.addArguments("--mute-audio");
+        }
+        
         // 启动Chromes
         this.driver = new ChromeDriver(options);
         if (!headless){
@@ -315,6 +321,7 @@ public class WatchVideo {
         try {
             WebElement codeBtn = driver.findElement(By.cssSelector("button[class='ant-btn ant-btn-primary']"));
             codeBtn.click();
+            log.info("人脸识别");
         } catch (Exception ignored) {}
     }
 
