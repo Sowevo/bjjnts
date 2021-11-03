@@ -28,6 +28,11 @@ public class Config {
     private boolean headless;
 
     /**
+     * 静音
+     */
+    private boolean muteAudio;
+    
+    /**
      * 百度的访问令牌
      */
     private String accessToken;

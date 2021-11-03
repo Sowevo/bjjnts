@@ -6,9 +6,9 @@ config:
   # Tr OCR 的访问地址
   trWebOCRUrl: http://192.168.21.185:8089/api/tr-run/
 
-
   # 是否使用无头模式(不显示浏览器界面)
   headless: false
+  muteAudio: false
   userList:
     - username: 用户名1
       password: 密码1
@@ -21,8 +21,6 @@ config:
 
     - username: 用户名4
       password: 密码4
-
-
 
 logging:
   level:
