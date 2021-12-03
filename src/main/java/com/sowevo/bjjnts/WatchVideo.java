@@ -32,20 +32,12 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class WatchVideo {
-    private Config config;
-
-    private static final String FULL_PATH = System.getProperty("user.dir");
-    private static final String SEPARATOR = File.separator;
-
-    public static final String FAKE_DEVICE = "--use-fake-device-for-media-stream";
-    public static final String FAKE_UI = "--use-fake-ui-for-media-stream";
-    public static final String FAKE_VIDEO = "--use-file-for-fake-video-capture="+FULL_PATH+SEPARATOR+"face"+SEPARATOR;
-    public static final String FAKE_AUDIO = "--use-file-for-fake-audio-capture="+FULL_PATH+SEPARATOR+"face"+SEPARATOR;
-
     public static final String HOME_URL = "https://www.bjjnts.cn/home";
     public static final String LOGIN_URL = "https://www.bjjnts.cn/user/login";
     public static final String STUDY_URL = "https://www.bjjnts.cn/mine/student/study";
     public static final String VIDEO_URL = "https://www.bjjnts.cn/study/video";
+
+    private Config config;
     public static Map<Integer,String> cache = new HashMap<>();
     private final WebDriver driver;
     private final WebDriver.Navigation navigation;
@@ -68,10 +60,19 @@ public class WatchVideo {
         ChromeOptions options = new ChromeOptions();
         // 添加一些chrome启动时的参数
         options.addArguments("--no-sandbox");
-        options.addArguments(FAKE_DEVICE);
-        options.addArguments(FAKE_UI);
-        options.addArguments(FAKE_VIDEO+username+".y4m");
-        options.addArguments(FAKE_AUDIO+username+".wav");
+
+        // 设置虚拟摄像头开始
+        options.addArguments("--use-fake-device-for-media-stream");
+        options.addArguments("--use-fake-ui-for-media-stream");
+        //虚拟摄像头使用的文件位置
+        File fakeVideoFile = FileUtil.file(System.getProperty("user.dir"),"face",username+".y4m");
+        if (!fakeVideoFile.exists()){
+            log.info("找不到视频文件:"+fakeVideoFile.getAbsolutePath()+"请检查文件位置是否错误!");
+            throw new RuntimeException("找不到视频文件:"+fakeVideoFile.getAbsolutePath()+"请检查文件位置是否错误!");
+        }
+        options.addArguments("--use-file-for-fake-video-capture="+fakeVideoFile.getAbsolutePath());
+        // 设置虚拟摄像头结束
+
 
         boolean headless = config.isHeadless();
         //无头模式
@@ -87,6 +88,7 @@ public class WatchVideo {
         
         // 启动Chromes
         this.driver = new ChromeDriver(options);
+        //无头模式不用设置窗口尺寸与位置
         if (!headless){
             this.driver.manage().window().setSize(new Dimension(800,480));
             this.driver.manage().window().setPosition(new Point(index*100,index*100));
@@ -98,13 +100,11 @@ public class WatchVideo {
     }
 
     public void test() throws InterruptedException {
-        String url = "https://webrtc.github.io/samples/src/content/peerconnection/pc1/";
+        String url = "https://www.onlinemictest.com/zh/webcam-test/";
         // 启动Chromes
         this.driver.get(url);
-        this.driver.findElement(By.id("startButton")).click();
+        this.driver.findElement(By.id("webcam-start")).click();
         setTitle(username);
-        Thread.sleep(6000);
-        this.driver.findElement(By.id("callButton")).click();
     }
 
     public void watch() throws InterruptedException {

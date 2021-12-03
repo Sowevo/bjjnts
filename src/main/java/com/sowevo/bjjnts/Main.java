@@ -42,6 +42,7 @@ public class Main implements CommandLineRunner {
             new Thread(() -> {
                 WatchVideo watchVideo = new WatchVideo(username,password,config, index);
                 try {
+                    //watchVideo.test();
                     watchVideo.watch();
                 } catch (InterruptedException e) {
                     e.printStackTrace();

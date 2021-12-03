@@ -29,7 +29,7 @@
 
 - 准备浏览器驱动
 
-  项目中已经包含浏览器驱动,如果与自己浏览器版本不一致,请去这个地址[下载](https://sites.google.com/a/chromium.org/chromedriver/downloads)
+  项目中已经包含浏览器驱动,如果与自己浏览器版本不一致,请去这个地址[下载](https://sites.google.com/chromium.org/driver/)
 
   下载之后放到项目中`bjjnts/driver`目录下,**替换**原有文件
 
@@ -41,16 +41,15 @@
 
   ```shell
   # 源视频文件格式可以是 mov,mp4等格式
-  # 生成视频后缀必须是y4m和wav,名称必须是你的手机号
+  # 生成视频后缀必须是y4m,名称必须与配置文件中的username参数对应
   $ ffmpeg -y -i 源视频.mp4 -vf scale=960:540 -pix_fmt yuv420p 185XXXXXX404.y4m
-  $ ffmpeg -y -i 源视频.mp4 -vn -acodec pcm_s16le -ar 48000 -ac 2 185XXXXXX404.wav
   ```
 
   将生成的两个文件放到项目中`bjjnts/face`目录中
 
   - 人脸识别效果验证
 
-    在服务运行后弹出来的浏览器中,打开测试网站:https://webcamtests.com/
+    在服务运行后弹出来的浏览器中,打开测试网站 https://www.onlinemictest.com/zh/webcam-test/
 
     检测是否正确加载你的视频
 
