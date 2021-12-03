@@ -67,8 +67,10 @@ public class WatchVideo {
         //虚拟摄像头使用的文件位置
         File fakeVideoFile = FileUtil.file(System.getProperty("user.dir"),"face",username+".y4m");
         if (!fakeVideoFile.exists()){
-            log.info("找不到视频文件:"+fakeVideoFile.getAbsolutePath()+"请检查文件位置是否错误!");
-            throw new RuntimeException("找不到视频文件:"+fakeVideoFile.getAbsolutePath()+"请检查文件位置是否错误!");
+            log.info("找不到视频文件:"+fakeVideoFile.getAbsolutePath()+",请检查文件位置是否错误!");
+            throw new RuntimeException("找不到视频文件:"+fakeVideoFile.getAbsolutePath()+",请检查文件位置是否错误!");
+        } else {
+            log.info("使用视频文件"+fakeVideoFile.getAbsolutePath()+"作为虚拟摄像头");
         }
         options.addArguments("--use-file-for-fake-video-capture="+fakeVideoFile.getAbsolutePath());
         // 设置虚拟摄像头结束
